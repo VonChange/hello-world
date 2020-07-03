@@ -34,6 +34,6 @@ docker_build(){
 }
 deploy(){
      helm_build $1
-	 kubectl --kubeconfig=/root/deploy/$1/config apply -f deploy.yaml
+	 kubectl --kubeconfig=config/dev/config apply -f deploy.yaml
 }
 
