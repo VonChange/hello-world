@@ -1,0 +1,70 @@
+kind: Deployment
+apiVersion: apps/v1beta2
+metadata:
+  name: {{ .Values.service.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "service.labels.standard" . | indent 4 }}
+{{- if .Values.monitor.enable }}
+{{ include "monitor.labels.standard" . | indent 4 }}
+{{- end }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+{{ include "service.match.labels" . | indent 6 }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 50%
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+{{ include "service.labels.standard" . | indent 8 }}
+        date-time: {{ .Values.time }}
+    spec:
+      containers:
+      - name: {{ .Values.service.name }}
+        image: "{{ .Values.image.repository }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        readinessProbe:
+          httpGet:
+            port: {{ .Values.config.port }}
+            path: "/v1/health"
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+          timeoutSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: "/v1/health"
+            port: {{ .Values.config.port }}
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          failureThreshold: 3
+          successThreshold: 1
+          timeoutSeconds: 5
+        env:
+{{- range $name, $value := .Values.env.open }}
+{{- if not (empty $value) }}
+        - name: {{ $name | quote }}
+          value: {{ $value | quote }}
+{{- end }}
+{{- end }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.config.port }}
+          protocol: TCP
+{{- if .Values.resource.enable }}
+        resources:
+{{ toYaml .Values.resources | indent 12 }}
+{{- end }}
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+  revisionHistoryLimit: 3
+  minReadySeconds: 0
+
+

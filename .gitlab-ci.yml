@@ -1,0 +1,54 @@
+
+variables:
+  ServiceName: "${CI_PROJECT_NAME}"
+  Namespace: "${CI_PROJECT_NAMESPACE}"
+
+image: registry.cn-hangzhou.aliyuncs.com/whaless/docker-maven-helm-kubectl-go-tpl-replacer:v1.1
+
+before_script:
+ - cd $CI_PROJECT_DIR
+
+stages:
+  - build
+  - deploy
+
+maven-docker-build:
+  stage: build
+  script:
+    - source ci.sh
+    - maven_build
+    - docker_build
+  except:
+    - /^release-.*$/
+    - /^hotfix-.*$/
+
+deploy-dev:
+  stage: deploy
+  script:
+   - source ci.sh
+   - deploy dev
+  except:
+   - /^release-.*$/
+   - /^hotfix-.*$/
+
+
+deploy-prod:
+  stage: deploy
+  script:
+    - source ci.sh
+    - deploy prod
+  only:
+    - /^release-.*$/
+    - /^hotfix-.*$/
+  when: manual
+
+
+
+
+    
+
+
+
+
+
+  
