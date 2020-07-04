@@ -1,4 +1,4 @@
-package com.vonchange.demo.helloworld;
+package com.vonchange.demo.helloworld.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
