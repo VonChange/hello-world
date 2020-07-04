@@ -15,7 +15,7 @@ stages:
 maven-docker-build:
   stage: build
   script:
-    - source ci.sh
+    - source /root/deploy/file/java/ci.sh
     - maven_build
     - docker_build
   except:
@@ -25,7 +25,7 @@ maven-docker-build:
 deploy-dev:
   stage: deploy
   script:
-   - source ci.sh
+   - source /root/deploy/file/java/ci.sh
    - deploy dev
   except:
    - /^release-.*$/
@@ -35,7 +35,7 @@ deploy-dev:
 deploy-prod:
   stage: deploy
   script:
-    - source ci.sh
+    - source /root/deploy/file/java/ci.sh
     - deploy prod
   only:
     - /^release-.*$/
